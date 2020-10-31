@@ -3,16 +3,24 @@ import {CalculatorButton} from '../CalculatorButton/CalculatorButton'
 import styled from 'styled-components';
 
 const Row = styled.div`
-    max-width: 90%;
+    width : 50vh;
 `;
 
 const Container = styled.div`
-    width: 60%;
-    max-width: 60%;
+    width : 50vh;
 `;
 
 const Display = styled.div`
-    margin-right: 30%;
+    width : 50vh;
+    `;
+
+const DisplayText = styled.div`
+    background-color: black;
+    color: white;
+    text-align: right;
+    font-size: 10vh;
+    font-family: sans-serif;
+    margin-right: 5vh;
 `;
 
 export class Calculator extends React.Component { 
@@ -25,7 +33,7 @@ export class Calculator extends React.Component {
         return (
             <Container>  
                 <Display>
-                    <h1 style={{backgroundColor: 'black', color: 'white', textAlign: 'right' }}>{this.props.result || '0'}</h1>                          
+                    <DisplayText>{this.props.result || '0'}</DisplayText>                          
                 </Display>
                 <Row>
                     <CalculatorButton value="AC" color={'grey'} onClickHandler={this.onClick}/>

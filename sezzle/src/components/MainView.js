@@ -30,9 +30,6 @@ export class MainView extends React.Component {
 
     onClick = e => {
         switch (e) {
-            case "%":
-                this.percentage();
-                break;
             case "<-":
                 this.erase();
                 break;
@@ -53,12 +50,6 @@ export class MainView extends React.Component {
                 break;
         }
     }
-
-    // percentage = () => {
-    //     this.setState({
-    //         result: 
-    //     });
-    // }
 
     negation = () => {
         if(this.state.result === "-"){
@@ -96,7 +87,8 @@ export class MainView extends React.Component {
     }
 
     equals = () => {
-        const final = eval(this.state.result.replace("x", "*"));
+        var final = eval(this.state.result.replace("x", "*").replace("%", "/100"));
+        final = Math.round(final * 10000) / 10000;
         this.setState({
             result: Number.isNaN(final) ? "Infinity" : final
         })
@@ -118,7 +110,7 @@ export class MainView extends React.Component {
 
     render(){
         return(
-            <div style={{backgroundColor: 'black', height: '100%'}}>
+            <div style={{backgroundColor: 'black', height: '100vh'}}>
                 <Calculator onClick={this.onClick} result={this.state.result}/>
                 <Results result={this.state.result}/>
             </div>

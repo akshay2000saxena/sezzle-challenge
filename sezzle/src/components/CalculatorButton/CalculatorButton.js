@@ -4,16 +4,16 @@ import styled from 'styled-components';
 const Button = styled.button`
     background: ${props => props.color};
     margin: 2px;
-    color: white;
+    color: ${props => (props.color === "grey") ? 'black' : 'white'};
     align-items: center;
     justify-content: center;
     flex: 1;
     margin: 1;
     border-radius: 100%;
-    width: 50px;
-    height: 50px;
+    width: 10vh;
+    height: 10vh;
     outline: none;
-    font-size: 25px;
+    font-size: 40px;
     font-family: sans-serif;
     :hover{
         opacity: 0.8;
