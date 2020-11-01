@@ -1,13 +1,47 @@
 import React from 'react';
-import {Results} from './Results'
-import {Calculator} from './Calculator/Calculator'
+import { Results } from './Results'
+import { Calculator } from './Calculator/Calculator'
+import { db } from '../services/firebase'
 
 export class MainView extends React.Component { 
     
     state = {
-        calculationList: this.props.calculationList,
+        calculationList: [],
+        question: "",
         result: "",
-        bracket: ""
+        bracket: "",
+    }
+
+    componentDidMount(){
+        this.getCalculationListFromDb();
+        console.log(this.state.calculationList);
+    }
+
+    getCalculationListFromDb = () => {
+        db.collection('calculationList')
+          .get()
+          .then(snapshot => {
+            this.initialList(snapshot)
+          })
+          .catch(error => console.log(error));
+    }
+
+    initialList = snapshot => {
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            this.setState({
+                calculationList: data.list
+            })
+        })
+        console.log(this.state.calculationList);
+    }
+
+    addCalculationToDB = newList => {
+        db.collection('calculationList')
+          .doc('docList')
+          .update({
+            list: newList
+          })
     }
 
     removeExtraCalcs = (list) => {
@@ -17,14 +51,16 @@ export class MainView extends React.Component {
         return list;
     }
 
-    updateList = () => {
-        let calcs = [this.state.result].concat(this.state.calculationList);
-        return this.removeExtraCalcs(calcs);
+    updateList = total => {
+        let calcs = [total].concat(this.state.calculationList);
+        calcs = this.removeExtraCalcs(calcs);
+        this.addCalculationToDB(calcs);
+        return calcs;
     }
 
-    enterLatestCalculation = () => {
+    enterLatestCalculation = total => {
         this.setState({
-            calculationList: this.updateList()
+            calculationList: this.updateList(total)
         });  
     }
 
@@ -52,18 +88,24 @@ export class MainView extends React.Component {
     }
 
     negation = () => {
-        if(this.state.result === "-"){
-            this.setState({
-                result: ""
-            }); 
-        } else if(this.state.result.length <= 1){
+        try {
+            if(this.state.result === "-"){
+                this.setState({
+                    result: ""
+                }); 
+            } else if(this.state.result.length <= 1){
+                this.setState({
+                    result: "-" + this.state.result
+                });
+            } else {
+                const check = this.state.result.length > 1 && this.state.result[0] !== '-';
+                this.setState({
+                    result: check ? "-" + this.state.result : this.state.result.substr(1)
+                });
+            }
+        } catch (error) {
             this.setState({
                 result: "-" + this.state.result
-            });
-        } else {
-            const check = this.state.result.length > 1 && this.state.result[0] !== '-';
-            this.setState({
-                result: check ? "-" + this.state.result : this.state.result.substr(1)
             });
         }
     }
@@ -87,12 +129,21 @@ export class MainView extends React.Component {
     }
 
     equals = () => {
-        var final = eval(this.state.result.replace("x", "*").replace("%", "/100"));
-        final = Math.round(final * 10000) / 10000;
-        this.setState({
-            result: Number.isNaN(final) ? "Infinity" : final
-        })
-        this.enterLatestCalculation();
+        try {
+            let final = eval(this.state.result.replace("x", "*").replace("%", "/100"));
+            final = Math.round(final * 10000) / 10000;
+
+            this.setState({
+                result: Number.isNaN(final) ? "Infinity" : final,
+            })
+
+            const total = this.state.result + " = " + String(final);
+            this.enterLatestCalculation(total);
+        } catch (error) {
+            this.setState({
+                result: "Invalid"
+            })
+        }
     }
 
     concatValue = e => {
@@ -112,7 +163,7 @@ export class MainView extends React.Component {
         return(
             <div style={{backgroundColor: 'black', height: '100vh'}}>
                 <Calculator onClick={this.onClick} result={this.state.result}/>
-                <Results result={this.state.result}/>
+                <Results calculationList={this.state.calculationList}/>
             </div>
         )
     }

@@ -1,16 +1,18 @@
 import React from 'react';
 
-export class Results extends React.Component {
-    constructor(props){
-        super(props)
-        this.state = {
-            calculationList: this.props.calculationList
-        }
-    }    
+export class Results extends React.Component { 
+    
+    state = {
+        calculationList: this.props.calculationList
+    }
+
+    componentDidMount = () => {
+        console.log(this.state.calculationList);
+    }
 
     render(){
         return(
-            <div>
+            <div style={{color: 'white'}}>
                 {this.state.calculationList}
             </div>
         )
