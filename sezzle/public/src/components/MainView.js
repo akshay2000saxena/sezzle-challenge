@@ -1,27 +1,7 @@
 import React, { useEffect } from 'react';
 import { Results } from './Results'
-import { Calculator } from './Calculator'
+import { Calculator } from './Calculator/Calculator'
 import { db } from '../services/firebase'
-import styled from 'styled-components';
-
-const Button = styled.button`
-    background: black;
-    margin: 2px;
-    color: white;
-    align-items: center;
-    vertical-align: center;
-    margin-top: 1.6vh;
-    justify-content: center;
-    flex: 1;
-    margin: 1;
-    border-radius: 10%;
-    outline: none;
-    font-size: 40px;
-    font-family: sans-serif;
-    :hover{
-        opacity: 0.8;
-    }
-`;
 
 export class MainView extends React.Component { 
     
@@ -35,16 +15,20 @@ export class MainView extends React.Component {
 
     componentDidMount(){
         this.getCalculationListFromDb();
+        const thisRefreshData = this.getCalculationListFromDb.bind(this);
     }
 
     getCalculationListFromDb = () => {
         this.setState({
+            // isLoaded: false,
             calculationList: this.state.calculationList,
         });
         db.collection('calculationList')
-          .onSnapshot(snapshot => {
-              this.initialList(snapshot);
+          .get()
+          .then(snapshot => {
+            this.initialList(snapshot)
           })
+          .catch(error => console.log(error));
     }
 
     initialList = snapshot => {
@@ -181,19 +165,10 @@ export class MainView extends React.Component {
         });
     }
 
-    clearData = () => {
-        this.addCalculationToDB([]);
-    }
-
     render(){
         return(
             <div>
-                <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                <h1 style={{paddingLeft:'70vh'}}>Real-Time Calculator</h1>
-                <div>
-                    <Button onClick={this.clearData}>Clear Data</Button>
-                </div>
-                </div>
+                <h1>Real-Time Calculator</h1>
                 <div style={{backgroundColor: 'black', height: '100vh', display: 'flex', flexDirection:'row', alignItems: 'center'}}>
                     <Calculator onClick={this.onClick} result={this.state.result}/>
                     {this.state.isLoaded ? <Results calculationList={this.state.calculationList}/> : <h1>No data loaded</h1>}
