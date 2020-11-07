@@ -4,14 +4,17 @@ import styled from 'styled-components';
 
 const Row = styled.div`
     width : 50vh;
+    align-items: center;
 `;
 
 const Container = styled.div`
-    width : 50vh;
+    width : 50%;
+    align-items: center;
 `;
 
 const Display = styled.div`
     width : 50vh;
+    align-items: center;
     `;
 
 const DisplayText = styled.div`

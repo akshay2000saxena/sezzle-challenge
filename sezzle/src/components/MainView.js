@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Results } from './Results'
 import { Calculator } from './Calculator/Calculator'
 import { db } from '../services/firebase'
@@ -10,14 +10,19 @@ export class MainView extends React.Component {
         question: "",
         result: "",
         bracket: "",
+        isLoaded: false
     }
 
     componentDidMount(){
         this.getCalculationListFromDb();
-        console.log(this.state.calculationList);
+        const thisRefreshData = this.getCalculationListFromDb.bind(this);
     }
 
     getCalculationListFromDb = () => {
+        this.setState({
+            // isLoaded: false,
+            calculationList: this.state.calculationList,
+        });
         db.collection('calculationList')
           .get()
           .then(snapshot => {
@@ -30,7 +35,8 @@ export class MainView extends React.Component {
         snapshot.forEach(doc => {
             const data = doc.data();
             this.setState({
-                calculationList: data.list
+                calculationList: data.list,
+                isLoaded: true
             })
         })
         console.log(this.state.calculationList);
@@ -60,7 +66,7 @@ export class MainView extends React.Component {
 
     enterLatestCalculation = total => {
         this.setState({
-            calculationList: this.updateList(total)
+            calculationList: this.updateList(total),
         });  
     }
 
@@ -161,9 +167,12 @@ export class MainView extends React.Component {
 
     render(){
         return(
-            <div style={{backgroundColor: 'black', height: '100vh'}}>
-                <Calculator onClick={this.onClick} result={this.state.result}/>
-                <Results calculationList={this.state.calculationList}/>
+            <div>
+                <h1>Real-Time Calculator</h1>
+                <div style={{backgroundColor: 'black', height: '100vh', display: 'flex', flexDirection:'row', alignItems: 'center'}}>
+                    <Calculator onClick={this.onClick} result={this.state.result}/>
+                    {this.state.isLoaded ? <Results calculationList={this.state.calculationList}/> : <h1>No data loaded</h1>}
+                </div>
             </div>
         )
     }
